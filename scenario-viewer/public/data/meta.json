@@ -1,5 +1,7 @@
 {
-  "source_csv": "scenario_pts.csv",
+  "source_csv": "run_scenario_pts_s16_elite8.csv",
   "bytes_csv": 53811354,
-  "bytes_gzip": 6025960
+  "bytes_gzip": 6025960,
+  "critical_path_csv": "run_critical_path_s16_elite8.csv",
+  "critical_path_bytes_gzip": 53346
 }
