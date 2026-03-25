@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import type { EntryPlaceChances } from "../lib/placeChances";
 import { computeEntryPlaceChances } from "../lib/placeChances";
 import { useAnalysisRows } from "../hooks/useAnalysisRows";
+import type { PlaceOutcomeFilter } from "../store/scenarioStore";
 import { useScenarioStore } from "../store/scenarioStore";
 
 type SortCol = "entry" | "first" | "second" | "third" | "fourth";
@@ -49,10 +50,23 @@ function defaultDirForColumn(col: SortCol): SortDir {
   return col === "entry" ? "asc" : "desc";
 }
 
+const PLACE_BY_COL: Record<Exclude<SortCol, "entry">, PlaceOutcomeFilter["place"]> = {
+  first: 1,
+  second: 2,
+  third: 3,
+  fourth: 4,
+};
+
+function placeColLabel(place: PlaceOutcomeFilter["place"]) {
+  return (["1st", "2nd", "3rd", "4th"] as const)[place - 1];
+}
+
 export function EntryPlaceSummary() {
   const dataset = useScenarioStore((s) => s.dataset);
   const entryRankCache = useScenarioStore((s) => s.entryRankCache);
   const selectedEntryIds = useScenarioStore((s) => s.selectedEntryIds);
+  const placeOutcomeFilter = useScenarioStore((s) => s.placeOutcomeFilter);
+  const setPlaceOutcomeFilter = useScenarioStore((s) => s.setPlaceOutcomeFilter);
   const analysisRows = useAnalysisRows();
   const [sortCol, setSortCol] = useState<SortCol>("first");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
@@ -93,6 +107,15 @@ export function EntryPlaceSummary() {
   const narrowed =
     selectedEntryIds.length > 0 && selectedEntryIds.length < dataset.entryIds.length;
 
+  const onPlaceCellClick = (entryId: string, col: Exclude<SortCol, "entry">) => {
+    const place = PLACE_BY_COL[col];
+    if (placeOutcomeFilter?.entryId === entryId && placeOutcomeFilter.place === place) {
+      setPlaceOutcomeFilter(null);
+    } else {
+      setPlaceOutcomeFilter({ entryId, place });
+    }
+  };
+
   return (
     <section className="panel entry-place-summary" aria-label="Finish place chances by entry">
       <div className="panel-head">
@@ -102,17 +125,29 @@ export function EntryPlaceSummary() {
             <>
               Showing only brackets selected in <strong>Brackets to compare</strong>. Ranks still use the
               full pool; each cell is <strong>scenario count (percent)</strong> over the same scenarios as the
-              outcomes table ({n.toLocaleString()} total). Click a column header to sort.
+              outcomes table ({n.toLocaleString()} total). Click a column header to sort; click a count cell
+              to filter the outcomes table to that finish for that entry (click again to clear).
             </>
           ) : (
             <>
               Each cell is <strong>scenario count (percent)</strong> over the same scenarios as the outcomes
-              table ({n.toLocaleString()} total). Click a column header to sort. With no game filters, that
-              set excludes scenarios where no visible bracket can finish 1st–4th; narrow brackets in the
-              sidebar to apply that rule to a subset.
+              table ({n.toLocaleString()} total). Click a column header to sort; click a count cell to filter
+              outcomes to scenarios where that entry finishes in that place. With no game filters, the base
+              set excludes scenarios where no visible bracket can finish 1st–4th.
             </>
           )}
         </p>
+        {placeOutcomeFilter && (
+          <p className="place-filter-active">
+            <span>
+              Outcomes filtered: <strong>{placeOutcomeFilter.entryId}</strong> finishes{" "}
+              <strong>{placeColLabel(placeOutcomeFilter.place)}</strong> ({n.toLocaleString()} scenarios).
+            </span>
+            <button type="button" className="btn secondary" onClick={() => setPlaceOutcomeFilter(null)}>
+              Clear place filter
+            </button>
+          </p>
+        )}
       </div>
       <div className="entry-place-scroll">
         <table className="entry-place-table">
@@ -161,16 +196,68 @@ export function EntryPlaceSummary() {
                 <th scope="row" className="entry-place-name">
                   {r.entryId}
                 </th>
-                <td>{countWithPct(r.nFirst, r.pFirst)}</td>
-                <td>{countWithPct(r.nSecond, r.pSecond)}</td>
-                <td>{countWithPct(r.nThird, r.pThird)}</td>
-                <td>{countWithPct(r.nFourth, r.pFourth)}</td>
+                <PlaceFilterTd
+                  entryId={r.entryId}
+                  place={1}
+                  label={countWithPct(r.nFirst, r.pFirst)}
+                  active={placeOutcomeFilter?.entryId === r.entryId && placeOutcomeFilter.place === 1}
+                  onClick={() => onPlaceCellClick(r.entryId, "first")}
+                />
+                <PlaceFilterTd
+                  entryId={r.entryId}
+                  place={2}
+                  label={countWithPct(r.nSecond, r.pSecond)}
+                  active={placeOutcomeFilter?.entryId === r.entryId && placeOutcomeFilter.place === 2}
+                  onClick={() => onPlaceCellClick(r.entryId, "second")}
+                />
+                <PlaceFilterTd
+                  entryId={r.entryId}
+                  place={3}
+                  label={countWithPct(r.nThird, r.pThird)}
+                  active={placeOutcomeFilter?.entryId === r.entryId && placeOutcomeFilter.place === 3}
+                  onClick={() => onPlaceCellClick(r.entryId, "third")}
+                />
+                <PlaceFilterTd
+                  entryId={r.entryId}
+                  place={4}
+                  label={countWithPct(r.nFourth, r.pFourth)}
+                  active={placeOutcomeFilter?.entryId === r.entryId && placeOutcomeFilter.place === 4}
+                  onClick={() => onPlaceCellClick(r.entryId, "fourth")}
+                />
               </tr>
             ))}
           </tbody>
         </table>
       </div>
     </section>
+  );
+}
+
+function PlaceFilterTd({
+  entryId,
+  place,
+  label,
+  active,
+  onClick,
+}: {
+  entryId: string;
+  place: 1 | 2 | 3 | 4;
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <td className="place-filter-td">
+      <button
+        type="button"
+        className={`entry-place-filter-btn${active ? " active" : ""}`}
+        onClick={onClick}
+        aria-pressed={active}
+        aria-label={`Filter outcomes to scenarios where ${entryId} finishes ${placeColLabel(place)}: ${label}`}
+      >
+        {label}
+      </button>
+    </td>
   );
 }
 

@@ -6,6 +6,9 @@ import { GAME_SLOTS } from "../lib/types";
 
 export type GameFilters = Partial<Record<GameSlot, Set<string>>>;
 
+/** Filter outcomes / analysis to scenarios where `entryId` has this competition rank (1–4). */
+export type PlaceOutcomeFilter = { entryId: string; place: 1 | 2 | 3 | 4 };
+
 type State = {
   dataset: ScenarioDataset | null;
   /** Precomputed competition ranks: built once when the dataset loads. */
@@ -21,6 +24,8 @@ type State = {
   focusedScenarioId: number | null;
   /** Game column opened in the detail modal */
   gameDetailSlot: GameSlot | null;
+  /** From place-chances table: narrow to scenarios where this entry finishes in `place`. */
+  placeOutcomeFilter: PlaceOutcomeFilter | null;
 
   setDataset: (d: ScenarioDataset) => void;
   setLoadStatus: (s: State["loadStatus"], err?: string | null) => void;
@@ -31,6 +36,7 @@ type State = {
   setSearchBracket: (q: string) => void;
   setFocusedScenarioId: (id: number | null) => void;
   setGameDetailSlot: (slot: GameSlot | null) => void;
+  setPlaceOutcomeFilter: (f: PlaceOutcomeFilter | null) => void;
 };
 
 function defaultSelectedEntries(entryIds: string[]): string[] {
@@ -47,6 +53,7 @@ export const useScenarioStore = create<State>((set, get) => ({
   searchBracket: "",
   focusedScenarioId: null,
   gameDetailSlot: null,
+  placeOutcomeFilter: null,
 
   setDataset: (d) =>
     set({
@@ -54,6 +61,7 @@ export const useScenarioStore = create<State>((set, get) => ({
       entryRankCache: buildEntryRankCache(d.rows, d.entryIds),
       selectedEntryIds: defaultSelectedEntries(d.entryIds),
       gameFilters: {},
+      placeOutcomeFilter: null,
       loadStatus: "ready",
       loadError: null,
     }),
@@ -88,6 +96,8 @@ export const useScenarioStore = create<State>((set, get) => ({
   setFocusedScenarioId: (id) => set({ focusedScenarioId: id }),
 
   setGameDetailSlot: (slot) => set({ gameDetailSlot: slot }),
+
+  setPlaceOutcomeFilter: (f) => set({ placeOutcomeFilter: f }),
 }));
 
 export function filterRowsByGames(

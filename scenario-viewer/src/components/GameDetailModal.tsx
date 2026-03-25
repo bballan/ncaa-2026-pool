@@ -2,6 +2,7 @@ import { useEffect, useMemo } from "react";
 import { GAME_SLOTS } from "../lib/types";
 import { GAME_SLOT_LABELS } from "../lib/slotLabels";
 import { useAnalysisRows } from "../hooks/useAnalysisRows";
+import { ScenarioStandingsPanel } from "./ScenarioStandingsPanel";
 import { useScenarioStore } from "../store/scenarioStore";
 
 export function GameDetailModal() {
@@ -9,6 +10,8 @@ export function GameDetailModal() {
   const setGameDetailSlot = useScenarioStore((s) => s.setGameDetailSlot);
   const focusedScenarioId = useScenarioStore((s) => s.focusedScenarioId);
   const dataset = useScenarioStore((s) => s.dataset);
+  const entryRankCache = useScenarioStore((s) => s.entryRankCache);
+  const selectedEntryIds = useScenarioStore((s) => s.selectedEntryIds);
 
   const filteredRows = useAnalysisRows();
 
@@ -40,13 +43,13 @@ export function GameDetailModal() {
 
   return (
     <div
-      className="modal-backdrop"
+      className="modal-backdrop modal-backdrop-game"
       role="dialog"
       aria-modal="true"
       aria-labelledby="game-detail-title"
       onClick={() => setGameDetailSlot(null)}
     >
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
+      <div className="modal modal-wide" onClick={(e) => e.stopPropagation()}>
         <header className="modal-head">
           <h2 id="game-detail-title">
             {gameDetailSlot} — {GAME_SLOT_LABELS[gameDetailSlot]}
@@ -56,6 +59,17 @@ export function GameDetailModal() {
           </button>
         </header>
         <div className="modal-body">
+          {focusedRow && dataset && (
+            <section className="detail-section">
+              <ScenarioStandingsPanel
+                row={focusedRow}
+                entryIds={dataset.entryIds}
+                cache={entryRankCache}
+                selectedEntryIds={selectedEntryIds}
+              />
+            </section>
+          )}
+
           <section className="detail-section">
             <h3>Winners in filtered scenarios</h3>
             <p className="muted">
@@ -106,7 +120,7 @@ export function GameDetailModal() {
 
           {!focusedRow && (
             <p className="muted">
-              Click a row number or a game cell to focus a scenario and see its full path here.
+              Click a row number or a game cell to focus a scenario and see standings and path here.
             </p>
           )}
         </div>

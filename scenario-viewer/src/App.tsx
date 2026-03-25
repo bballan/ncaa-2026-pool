@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { EntryPicker } from "./components/EntryPicker";
 import { GameDetailModal } from "./components/GameDetailModal";
+import { ScenarioStandingsModal } from "./components/ScenarioStandingsModal";
 import { EntryPlaceSummary } from "./components/EntryPlaceSummary";
 import { GameFilterBar } from "./components/GameFilterBar";
 import { ScenarioTable } from "./components/ScenarioTable";
@@ -64,6 +65,7 @@ export default function App() {
         </div>
       </main>
 
+      <ScenarioStandingsModal />
       <GameDetailModal />
     </div>
   );

@@ -4,6 +4,7 @@ import type { ScenarioRow } from "../lib/types";
 import { GAME_SLOTS } from "../lib/types";
 import { GAME_SLOT_LABELS } from "../lib/slotLabels";
 import { useAnalysisRows } from "../hooks/useAnalysisRows";
+import { formatPts } from "../lib/formatPts";
 import { rankFromCache } from "../lib/rankMatrix";
 import { useScenarioStore } from "../store/scenarioStore";
 
@@ -40,7 +41,8 @@ export function ScenarioTable() {
         <p className="muted">
           Entry columns show <strong>rank (Pts …)</strong> (competition rank vs the full pool). Rows match
           scenario filters above; with no game filters, only scenarios where a bracket in the place table can
-          finish 1st–4th are shown. Click a game header or cell for details; click # to focus a row.
+          finish 1st–4th are shown. Click a game header or cell for details; click # for standings (or focus
+          when the game modal is open).
         </p>
       </div>
       <div className="table-scroll" ref={parentRef}>
@@ -141,13 +143,8 @@ export function ScenarioTable() {
   );
 }
 
-function formatScore(n: number | undefined) {
-  if (n === undefined || Number.isNaN(n)) return "—";
-  return Number.isInteger(n) ? String(n) : n.toFixed(1);
-}
-
 function formatRankAndPoints(row: ScenarioRow, eid: string, rank: number | undefined): string {
-  const pts = formatScore(row.scores[eid]);
+  const pts = formatPts(row.scores[eid]);
   if (rank === undefined) return "—";
   return `${rank} (Pts ${pts})`;
 }

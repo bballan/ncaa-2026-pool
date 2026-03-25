@@ -1,7 +1,7 @@
 import type { EntryRankCache } from "./rankMatrix";
 import type { ScenarioDataset, ScenarioRow } from "./types";
 import { GAME_SLOTS } from "./types";
-import type { GameFilters } from "../store/scenarioStore";
+import type { GameFilters, PlaceOutcomeFilter } from "../store/scenarioStore";
 import { competitionRanksForRow } from "./placeChances";
 
 export function gameFiltersActive(gameFilters: GameFilters): boolean {
@@ -49,10 +49,27 @@ export function rowHasAnyTopFourRank(
   return false;
 }
 
+export function filterRowsByPlaceOutcome(
+  rows: ScenarioRow[],
+  filter: PlaceOutcomeFilter,
+  allEntryIds: string[],
+  cache: EntryRankCache | null,
+): ScenarioRow[] {
+  const { entryId, place } = filter;
+  if (cache) {
+    const j = cache.idToIndex.get(entryId);
+    if (j === undefined) return rows;
+    const { matrix, nEntries } = cache;
+    return rows.filter((row) => matrix[row.id * nEntries + j] === place);
+  }
+  return rows.filter((row) => competitionRanksForRow(row, allEntryIds).get(entryId) === place);
+}
+
 /**
  * Rows used for outcomes table, place chances, and game detail counts.
- * - With game filters: same as game-filtered rows.
+ * - With game filters: start from game-filtered rows.
  * - With no game filters: drop scenarios where no visible place-table bracket finishes 1st–4th.
+ * - Optional place cell filter: keep only scenarios where that entry has that rank (1–4).
  */
 export function applyAnalysisRowFilter(
   gameFiltered: ScenarioRow[],
@@ -60,12 +77,23 @@ export function applyAnalysisRowFilter(
   gameFilters: GameFilters,
   selectedEntryIds: string[],
   entryRankCache: EntryRankCache | null,
+  placeOutcomeFilter: PlaceOutcomeFilter | null,
 ): ScenarioRow[] {
-  if (gameFiltersActive(gameFilters)) return gameFiltered;
+  let out: ScenarioRow[];
+  if (gameFiltersActive(gameFilters)) {
+    out = gameFiltered;
+  } else {
+    const allIds = dataset.entryIds;
+    const bracketIds = placeTableBracketIds(allIds, selectedEntryIds);
+    if (bracketIds.length === allIds.length) {
+      out = gameFiltered;
+    } else {
+      out = gameFiltered.filter((row) => rowHasAnyTopFourRank(row, bracketIds, allIds, entryRankCache));
+    }
+  }
 
-  const allIds = dataset.entryIds;
-  const bracketIds = placeTableBracketIds(allIds, selectedEntryIds);
-  if (bracketIds.length === allIds.length) return gameFiltered;
-
-  return gameFiltered.filter((row) => rowHasAnyTopFourRank(row, bracketIds, allIds, entryRankCache));
+  if (placeOutcomeFilter) {
+    out = filterRowsByPlaceOutcome(out, placeOutcomeFilter, dataset.entryIds, entryRankCache);
+  }
+  return out;
 }

@@ -56,8 +56,14 @@ function GameSlotFilter({
   );
 }
 
+function placeOrdinal(p: 1 | 2 | 3 | 4) {
+  return (["1st", "2nd", "3rd", "4th"] as const)[p - 1];
+}
+
 export function GameFilterBar() {
   const clearGameFilters = useScenarioStore((s) => s.clearGameFilters);
+  const placeOutcomeFilter = useScenarioStore((s) => s.placeOutcomeFilter);
+  const setPlaceOutcomeFilter = useScenarioStore((s) => s.setPlaceOutcomeFilter);
   const dataset = useScenarioStore((s) => s.dataset);
   const gameFilters = useScenarioStore((s) => s.gameFilters);
   const selectedEntryIds = useScenarioStore((s) => s.selectedEntryIds);
@@ -85,9 +91,19 @@ export function GameFilterBar() {
           <span>
             Showing <strong>{analysisRows.length}</strong> of {dataset.rows.length} scenarios
           </span>
+          {placeOutcomeFilter && (
+            <span className="place-filter-chip" title="From place-chances table">
+              Place: <strong>{placeOutcomeFilter.entryId}</strong> {placeOrdinal(placeOutcomeFilter.place)}
+            </span>
+          )}
           <button type="button" className="btn secondary" onClick={() => clearGameFilters()}>
             Clear game filters
           </button>
+          {placeOutcomeFilter && (
+            <button type="button" className="btn secondary" onClick={() => setPlaceOutcomeFilter(null)}>
+              Clear place filter
+            </button>
+          )}
         </div>
         {topFourNote && <p className="muted filter-note">{topFourNote}</p>}
       </div>

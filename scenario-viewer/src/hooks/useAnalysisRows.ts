@@ -8,6 +8,7 @@ export function useAnalysisRows() {
   const entryRankCache = useScenarioStore((s) => s.entryRankCache);
   const gameFilters = useScenarioStore((s) => s.gameFilters);
   const selectedEntryIds = useScenarioStore((s) => s.selectedEntryIds);
+  const placeOutcomeFilter = useScenarioStore((s) => s.placeOutcomeFilter);
 
   const gameFiltered = useMemo(
     () => filterRowsByGames(dataset, gameFilters),
@@ -22,6 +23,7 @@ export function useAnalysisRows() {
       gameFilters,
       selectedEntryIds,
       entryRankCache,
+      placeOutcomeFilter,
     );
-  }, [gameFiltered, dataset, gameFilters, selectedEntryIds, entryRankCache]);
+  }, [gameFiltered, dataset, gameFilters, selectedEntryIds, entryRankCache, placeOutcomeFilter]);
 }
