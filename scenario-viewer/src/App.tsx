@@ -5,7 +5,13 @@ import { ScenarioStandingsModal } from "./components/ScenarioStandingsModal";
 import { EntryPlaceSummary } from "./components/EntryPlaceSummary";
 import { GameFilterBar } from "./components/GameFilterBar";
 import { ScenarioTable } from "./components/ScenarioTable";
+import { useScenarioUrlSync } from "./hooks/useScenarioUrlSync";
 import { loadScenarioDataset } from "./lib/loadData";
+import {
+  applyScenarioUrlQuery,
+  beginScenarioUrlHydration,
+  endScenarioUrlHydration,
+} from "./lib/scenarioUrlQuery";
 import { useScenarioStore } from "./store/scenarioStore";
 import "./styles.css";
 
@@ -16,12 +22,21 @@ export default function App() {
   const loadError = useScenarioStore((s) => s.loadError);
   const dataset = useScenarioStore((s) => s.dataset);
 
+  useScenarioUrlSync();
+
   useEffect(() => {
     let cancelled = false;
     setLoadStatus("loading");
     loadScenarioDataset(window.location.search)
       .then((d) => {
-        if (!cancelled) setDataset(d);
+        if (cancelled) return;
+        beginScenarioUrlHydration();
+        try {
+          setDataset(d);
+          applyScenarioUrlQuery(new URLSearchParams(window.location.search), d);
+        } finally {
+          endScenarioUrlHydration();
+        }
       })
       .catch((e: unknown) => {
         if (!cancelled) {
