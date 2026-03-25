@@ -1,5 +1,4 @@
-# Build and deploy the scenario viewer to GitHub Pages (free).
-# Repo Settings → Pages → Source: GitHub Actions.
+# Settings → Pages → Source: GitHub Actions (once per repo).
 name: Deploy scenario viewer
 
 on:
@@ -21,17 +20,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - name: Bundle scenario CSV (if present in repo)
-        run: |
-          CSV="$(ls output/2026/*_scenario_pts_*.csv 2>/dev/null | head -n 1)"
-          if [ -n "$CSV" ] && [ -f "$CSV" ]; then
-            python scripts/prepare_viewer_data.py "$CSV"
-          else
-            echo "No output CSV in checkout — using scenario-viewer/public/data/scenarios.csv.gz if committed, else mock data."
-          fi
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
@@ -42,8 +30,7 @@ jobs:
         run: |
           npm ci
           npm run build
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v3
         with:
           path: scenario-viewer/dist
 

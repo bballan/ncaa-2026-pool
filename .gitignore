@@ -5,13 +5,23 @@ venv/
 .pytest_cache/
 .DS_Store
 *.egg-info/
-
-# Office temp lock files
 **/~$*
 
-# Scenario viewer (build + deps)
 scenario-viewer/node_modules/
 scenario-viewer/dist/
 
-# Raw scenario CSVs are huge; commit scenario-viewer/public/data/scenarios.csv.gz instead (see README).
-output/**/*.csv
+# --- Full pool project (keep locally; not published in the viewer-only remote) ---
+2019/
+pool/
+tests/
+docs/
+output/
+createscenarios.py
+config*.yaml
+config*.yml
+requirements.txt
+bracket_picks.xlsx
+master_elite8_from_pool.csv
+scripts/build_master*.py
+/*.html
+World's Best NCAA Pool standings*.csv

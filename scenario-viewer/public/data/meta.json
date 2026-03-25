@@ -1,5 +1,5 @@
 {
-  "source_csv": "/Users/brianballan/Library/CloudStorage/Dropbox/NCAA/2026/output/2026/run_scenario_pts_s16_elite8.csv",
+  "source_csv": "scenario_pts.csv",
   "bytes_csv": 53811354,
   "bytes_gzip": 6025960
 }

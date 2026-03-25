@@ -1,32 +1,25 @@
 #!/usr/bin/env python3
-"""Copy scenario points CSV into scenario-viewer/public/data as gzip for the web UI."""
+"""Write scenario-viewer/public/data/scenarios.csv.gz from a pool scenario-points CSV."""
 
 from __future__ import annotations
 
 import argparse
 import gzip
 import json
-import shutil
 from pathlib import Path
 
-_ROOT = Path(__file__).resolve().parents[1]
-_DEFAULT_CSV = _ROOT / "output" / "2026" / "run_scenario_pts_s16_elite8.csv"
+_REPO = Path(__file__).resolve().parents[1]
+_DEFAULT_OUT = _REPO / "scenario-viewer" / "public" / "data"
 
 
 def main() -> None:
     p = argparse.ArgumentParser(description="Prepare scenario-viewer data bundle")
-    p.add_argument(
-        "csv",
-        nargs="?",
-        type=Path,
-        default=_DEFAULT_CSV,
-        help=f"Scenario CSV (default: {_DEFAULT_CSV})",
-    )
+    p.add_argument("csv", type=Path, help="Scenario points CSV (*_scenario_pts_*.csv)")
     p.add_argument(
         "-o",
         "--out-dir",
         type=Path,
-        default=_ROOT / "scenario-viewer" / "public" / "data",
+        default=_DEFAULT_OUT,
         help="Output directory",
     )
     ns = p.parse_args()
@@ -44,7 +37,7 @@ def main() -> None:
     dst_gz.write_bytes(gzip.compress(raw, compresslevel=9))
 
     meta = {
-        "source_csv": str(csv_path.resolve()),
+        "source_csv": csv_path.name,
         "bytes_csv": len(raw),
         "bytes_gzip": dst_gz.stat().st_size,
     }
