@@ -87,12 +87,16 @@ Static React app under [`scenario-viewer/`](scenario-viewer/) shows the full sce
       git push -u origin main
       ```
 
-   4. On GitHub: **Settings → Pages → Build and deployment → Source: GitHub Actions** (pick the “GitHub Pages” workflow if prompted).
-   5. Open **Actions** and confirm **Deploy scenario viewer** succeeds. The site will be at `https://YOUR_USER.github.io/YOUR_REPO/` (project site).
+   4. Turn on Pages for Actions (one-time per repo). Either:
+      - **Settings → Pages → Build and deployment → Source: GitHub Actions**, or  
+      - `gh api -X POST repos/YOUR_USER/YOUR_REPO/pages -f build_type=workflow`
+   5. Open **Actions** and confirm **Deploy scenario viewer** succeeds (re-run the workflow if the first deploy failed with “Ensure GitHub Pages has been enabled”). The site will be at `https://YOUR_USER.github.io/YOUR_REPO/`.
 
    On each push to `main` or `master`, CI rebuilds and redeploys. You can also run the workflow manually (**Actions → Deploy scenario viewer → Run workflow**).
 
    **Alternatives:** [Cloudflare Pages](https://pages.cloudflare.com/) or [Netlify](https://www.netlify.com/) — upload `scenario-viewer/dist` after `npm run build`.
+
+   Published viewer for this project: [bballan.github.io/ncaa-2026-pool](https://bballan.github.io/ncaa-2026-pool/).
 
 Use `?mock=1` on the URL to load a tiny mock dataset without CSV files.
 
