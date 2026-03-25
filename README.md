@@ -12,7 +12,13 @@ From a `*_scenario_pts_*.csv` produced by your pool pipeline:
 python3 scripts/prepare_viewer_data.py /path/to/scenario_pts.csv
 ```
 
-That writes `scenario-viewer/public/data/scenarios.csv.gz`. Commit that file and push; CI redeploys.
+Add the must-win bundle (optional but needed for the **Must-win games** tab on the static site):
+
+```bash
+python3 scripts/prepare_viewer_data.py /path/to/scenario_pts.csv --critical-path /path/to/run_critical_path_*.csv
+```
+
+That writes `scenario-viewer/public/data/scenarios.csv.gz` and, when `--critical-path` is passed, `critical_path.csv.gz`. Commit those files and push; CI redeploys.
 
 ## Local dev
 

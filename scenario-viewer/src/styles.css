@@ -651,3 +651,246 @@ input:focus-visible {
   font-size: 0.85rem;
   color: var(--muted);
 }
+
+/* Main tabs */
+.app-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 1rem;
+  padding: 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.app-tab {
+  margin: 0 0 -1px;
+  padding: 0.5rem 1rem;
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 550;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid transparent;
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  cursor: pointer;
+}
+
+.app-tab:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.app-tab.active {
+  color: var(--text);
+  background: var(--surface);
+  border-color: var(--border);
+  border-bottom-color: var(--surface);
+}
+
+.app-main-mustwin {
+  grid-template-columns: 1fr;
+}
+
+.main-col-mustwin {
+  max-width: 100%;
+}
+
+/* Must-win tab */
+.mustwin-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 1rem 1.25rem;
+  margin-top: 0.75rem;
+}
+
+.mustwin-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.mustwin-field-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.mustwin-input {
+  margin-bottom: 0;
+  min-width: 12rem;
+  max-width: 20rem;
+}
+
+.mustwin-places {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.45rem 0.65rem 0.5rem;
+  margin: 0;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+}
+
+.mustwin-places legend {
+  padding: 0 0.25rem;
+}
+
+.checkbox-line.compact {
+  margin: 0;
+  font-size: 0.88rem;
+}
+
+.mustwin-select {
+  padding: 0.45rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  min-width: 10rem;
+}
+
+.mustwin-toolbar-actions {
+  display: flex;
+  align-items: flex-end;
+}
+
+.mustwin-add-place {
+  min-width: min(100%, 18rem);
+  max-width: 22rem;
+}
+
+.mustwin-add-place-hint {
+  margin: 0 0 0.4rem;
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+
+.mustwin-add-place-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.mustwin-place-input {
+  width: 6rem;
+  min-width: 0;
+  margin-bottom: 0;
+}
+
+.mustwin-place-chips {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.mustwin-place-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem 0.45rem 0.2rem 0.55rem;
+  font: inherit;
+  font-size: 0.82rem;
+  color: var(--text);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.mustwin-place-chip:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.mustwin-place-chip-x {
+  font-size: 1rem;
+  line-height: 1;
+  opacity: 0.75;
+}
+
+.mustwin-count {
+  margin-top: 0.65rem;
+  margin-bottom: 0;
+}
+
+.mustwin-scroll {
+  max-height: min(70vh, 900px);
+}
+
+.mustwin-th.sortable {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.15rem;
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-align: left;
+  color: var(--text);
+  background: var(--surface2);
+  border: none;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 0.35rem 0.45rem;
+  cursor: pointer;
+}
+
+.mustwin-th.sortable:hover {
+  background: rgba(56, 189, 248, 0.12);
+}
+
+.mustwin-th.sortable.active {
+  color: var(--accent);
+}
+
+.sort-indicator {
+  font-size: 0.65rem;
+  opacity: 0.9;
+}
+
+.mustwin-slot-th {
+  font-size: 0.72rem;
+}
+
+.mustwin-row .td-entry {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+  padding-left: 0.5rem;
+  font-size: 0.82rem;
+}
+
+.mustwin-row .td-place,
+.mustwin-row .td-count {
+  font-variant-numeric: tabular-nums;
+  font-size: 0.82rem;
+}
+
+.mustwin-pick {
+  font-size: 0.78rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0 0.35rem;
+}
+
+.mustwin-pick.has-pick {
+  background: rgba(56, 189, 248, 0.08);
+}
+
+.mustwin-panel code {
+  font-size: 0.8em;
+  color: var(--accent-dim);
+}
