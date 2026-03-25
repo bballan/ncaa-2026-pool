@@ -6,6 +6,9 @@ venv/
 .DS_Store
 *.egg-info/
 
+# Office temp lock files
+**/~$*
+
 # Scenario viewer (build + deps)
 scenario-viewer/node_modules/
 scenario-viewer/dist/
