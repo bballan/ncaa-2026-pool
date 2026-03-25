@@ -1,3 +1,4 @@
+import type { EntryRankCache } from "./rankMatrix";
 import type { ScenarioRow } from "./types";
 
 /** Competition ranking (1,1,3,4…): ties share rank; next rank skips. */
@@ -26,12 +27,17 @@ export type EntryPlaceChances = {
   pSecond: number;
   pThird: number;
   pFourth: number;
+  nFirst: number;
+  nSecond: number;
+  nThird: number;
+  nFourth: number;
 };
 
 /** Fraction of scenarios (0–1) where each entry finishes 1st–4th by competition rank. */
 export function computeEntryPlaceChances(
   rows: ScenarioRow[],
   entryIds: string[],
+  rankCache?: EntryRankCache | null,
 ): EntryPlaceChances[] {
   if (entryIds.length === 0) return [];
 
@@ -46,33 +52,54 @@ export function computeEntryPlaceChances(
     c4.set(id, 0);
   }
 
-  for (const row of rows) {
-    const ranks = competitionRanksForRow(row, entryIds);
-    for (const id of entryIds) {
-      const r = ranks.get(id)!;
-      if (r === 1) c1.set(id, c1.get(id)! + 1);
-      else if (r === 2) c2.set(id, c2.get(id)! + 1);
-      else if (r === 3) c3.set(id, c3.get(id)! + 1);
-      else if (r === 4) c4.set(id, c4.get(id)! + 1);
+  const useCache =
+    rankCache &&
+    rankCache.nEntries === entryIds.length &&
+    rankCache.matrix.length === rankCache.nRows * rankCache.nEntries;
+
+  if (useCache) {
+    const { matrix, nEntries } = rankCache;
+    for (const row of rows) {
+      const base = row.id * nEntries;
+      for (let j = 0; j < entryIds.length; j++) {
+        const id = entryIds[j]!;
+        const r = matrix[base + j]!;
+        if (r >= 65535) continue;
+        if (r === 1) c1.set(id, c1.get(id)! + 1);
+        else if (r === 2) c2.set(id, c2.get(id)! + 1);
+        else if (r === 3) c3.set(id, c3.get(id)! + 1);
+        else if (r === 4) c4.set(id, c4.get(id)! + 1);
+      }
+    }
+  } else {
+    for (const row of rows) {
+      const ranks = competitionRanksForRow(row, entryIds);
+      for (const id of entryIds) {
+        const r = ranks.get(id)!;
+        if (r === 1) c1.set(id, c1.get(id)! + 1);
+        else if (r === 2) c2.set(id, c2.get(id)! + 1);
+        else if (r === 3) c3.set(id, c3.get(id)! + 1);
+        else if (r === 4) c4.set(id, c4.get(id)! + 1);
+      }
     }
   }
 
   const n = rows.length || 1;
-  const out: EntryPlaceChances[] = entryIds.map((entryId) => ({
-    entryId,
-    pFirst: (c1.get(entryId) ?? 0) / n,
-    pSecond: (c2.get(entryId) ?? 0) / n,
-    pThird: (c3.get(entryId) ?? 0) / n,
-    pFourth: (c4.get(entryId) ?? 0) / n,
-  }));
-
-  out.sort(
-    (a, b) =>
-      b.pFirst - a.pFirst ||
-      b.pSecond - a.pSecond ||
-      b.pThird - a.pThird ||
-      a.entryId.localeCompare(b.entryId),
-  );
-
-  return out;
+  return entryIds.map((entryId) => {
+    const n1 = c1.get(entryId) ?? 0;
+    const n2 = c2.get(entryId) ?? 0;
+    const n3 = c3.get(entryId) ?? 0;
+    const n4 = c4.get(entryId) ?? 0;
+    return {
+      entryId,
+      pFirst: n1 / n,
+      pSecond: n2 / n,
+      pThird: n3 / n,
+      pFourth: n4 / n,
+      nFirst: n1,
+      nSecond: n2,
+      nThird: n3,
+      nFourth: n4,
+    };
+  });
 }

@@ -1,4 +1,6 @@
 import { create } from "zustand";
+import type { EntryRankCache } from "../lib/rankMatrix";
+import { buildEntryRankCache } from "../lib/rankMatrix";
 import type { GameSlot, ScenarioDataset, ScenarioRow } from "../lib/types";
 import { GAME_SLOTS } from "../lib/types";
 
@@ -6,6 +8,8 @@ export type GameFilters = Partial<Record<GameSlot, Set<string>>>;
 
 type State = {
   dataset: ScenarioDataset | null;
+  /** Precomputed competition ranks: built once when the dataset loads. */
+  entryRankCache: EntryRankCache | null;
   loadStatus: "idle" | "loading" | "ready" | "error";
   loadError: string | null;
   /** Entry (bracket) columns to show in the grid */
@@ -30,12 +34,12 @@ type State = {
 };
 
 function defaultSelectedEntries(entryIds: string[]): string[] {
-  const max = 12;
-  return entryIds.slice(0, Math.min(max, entryIds.length));
+  return [...entryIds];
 }
 
 export const useScenarioStore = create<State>((set, get) => ({
   dataset: null,
+  entryRankCache: null,
   loadStatus: "idle",
   loadError: null,
   selectedEntryIds: [],
@@ -47,6 +51,7 @@ export const useScenarioStore = create<State>((set, get) => ({
   setDataset: (d) =>
     set({
       dataset: d,
+      entryRankCache: buildEntryRankCache(d.rows, d.entryIds),
       selectedEntryIds: defaultSelectedEntries(d.entryIds),
       gameFilters: {},
       loadStatus: "ready",

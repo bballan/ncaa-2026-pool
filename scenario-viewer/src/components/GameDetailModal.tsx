@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from "react";
 import { GAME_SLOTS } from "../lib/types";
 import { GAME_SLOT_LABELS } from "../lib/slotLabels";
-import { useFilteredRows } from "../hooks/useFilteredRows";
+import { useAnalysisRows } from "../hooks/useAnalysisRows";
 import { useScenarioStore } from "../store/scenarioStore";
 
 export function GameDetailModal() {
@@ -10,7 +10,7 @@ export function GameDetailModal() {
   const focusedScenarioId = useScenarioStore((s) => s.focusedScenarioId);
   const dataset = useScenarioStore((s) => s.dataset);
 
-  const filteredRows = useFilteredRows();
+  const filteredRows = useAnalysisRows();
 
   const frequencies = useMemo(() => {
     if (!gameDetailSlot) return [];

@@ -2,7 +2,8 @@ import { useMemo } from "react";
 import type { GameSlot } from "../lib/types";
 import { GAME_SLOTS } from "../lib/types";
 import { GAME_SLOT_LABELS } from "../lib/slotLabels";
-import { useFilteredRows } from "../hooks/useFilteredRows";
+import { gameFiltersActive } from "../lib/analysisRows";
+import { useAnalysisRows } from "../hooks/useAnalysisRows";
 import { useScenarioStore } from "../store/scenarioStore";
 
 function useTeamOptionsBySlot() {
@@ -58,10 +59,20 @@ function GameSlotFilter({
 export function GameFilterBar() {
   const clearGameFilters = useScenarioStore((s) => s.clearGameFilters);
   const dataset = useScenarioStore((s) => s.dataset);
-  const filtered = useFilteredRows();
+  const gameFilters = useScenarioStore((s) => s.gameFilters);
+  const selectedEntryIds = useScenarioStore((s) => s.selectedEntryIds);
+  const analysisRows = useAnalysisRows();
   const teamMap = useTeamOptionsBySlot();
 
   if (!dataset) return null;
+
+  const gamesActive = gameFiltersActive(gameFilters);
+  const narrowedBrackets =
+    selectedEntryIds.length > 0 && selectedEntryIds.length < dataset.entryIds.length;
+  const topFourNote =
+    !gamesActive && narrowedBrackets
+      ? "With no game filters, the outcomes table and place chances only include scenarios where at least one bracket in the place table can finish 1st–4th."
+      : null;
 
   return (
     <section className="panel game-filters" aria-label="Filter by game winners">
@@ -72,12 +83,13 @@ export function GameFilterBar() {
         </p>
         <div className="filter-meta">
           <span>
-            Showing <strong>{filtered.length}</strong> of {dataset.rows.length} scenarios
+            Showing <strong>{analysisRows.length}</strong> of {dataset.rows.length} scenarios
           </span>
           <button type="button" className="btn secondary" onClick={() => clearGameFilters()}>
             Clear game filters
           </button>
         </div>
+        {topFourNote && <p className="muted filter-note">{topFourNote}</p>}
       </div>
       <div className="game-filter-grid">
         {GAME_SLOTS.map((slot) => (

@@ -1,23 +1,27 @@
 import { useRef } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
+import type { ScenarioRow } from "../lib/types";
 import { GAME_SLOTS } from "../lib/types";
 import { GAME_SLOT_LABELS } from "../lib/slotLabels";
-import { useFilteredRows } from "../hooks/useFilteredRows";
+import { useAnalysisRows } from "../hooks/useAnalysisRows";
+import { rankFromCache } from "../lib/rankMatrix";
 import { useScenarioStore } from "../store/scenarioStore";
 
 const ROW_H = 34;
 const CELL_GAME_W = 128;
 const CELL_ID_W = 72;
-const CELL_SCORE_W = 88;
+/** Wide enough for e.g. "12 (Pts 344.0)" */
+const CELL_SCORE_W = 118;
 
 export function ScenarioTable() {
   const parentRef = useRef<HTMLDivElement>(null);
+  const entryRankCache = useScenarioStore((s) => s.entryRankCache);
   const selectedEntryIds = useScenarioStore((s) => s.selectedEntryIds);
   const setGameDetailSlot = useScenarioStore((s) => s.setGameDetailSlot);
   const setFocusedScenarioId = useScenarioStore((s) => s.setFocusedScenarioId);
   const focusedScenarioId = useScenarioStore((s) => s.focusedScenarioId);
 
-  const filteredRows = useFilteredRows();
+  const filteredRows = useAnalysisRows();
 
   const rowVirtualizer = useVirtualizer({
     count: filteredRows.length,
@@ -34,8 +38,9 @@ export function ScenarioTable() {
       <div className="panel-head">
         <h2>Outcomes table</h2>
         <p className="muted">
-          Click a game column header or a cell to open details. Click a row number to focus that
-          scenario.
+          Entry columns show <strong>rank (Pts …)</strong> (competition rank vs the full pool). Rows match
+          scenario filters above; with no game filters, only scenarios where a bracket in the place table can
+          finish 1st–4th are shown. Click a game header or cell for details; click # to focus a row.
         </p>
       </div>
       <div className="table-scroll" ref={parentRef}>
@@ -112,11 +117,20 @@ export function ScenarioTable() {
                       {row.games[slot]}
                     </button>
                   ))}
-                  {selectedEntryIds.map((eid) => (
-                    <div key={eid} className="td td-score" style={{ width: CELL_SCORE_W }}>
-                      {formatScore(row.scores[eid])}
-                    </div>
-                  ))}
+                  {selectedEntryIds.map((eid) => {
+                    const rank = entryRankCache ? rankFromCache(entryRankCache, row.id, eid) : undefined;
+                    const label = formatRankAndPoints(row, eid, rank);
+                    return (
+                      <div
+                        key={eid}
+                        className="td td-score"
+                        style={{ width: CELL_SCORE_W }}
+                        title={`${eid}: ${label}`}
+                      >
+                        {label}
+                      </div>
+                    );
+                  })}
                 </div>
               );
             })}
@@ -130,4 +144,10 @@ export function ScenarioTable() {
 function formatScore(n: number | undefined) {
   if (n === undefined || Number.isNaN(n)) return "—";
   return Number.isInteger(n) ? String(n) : n.toFixed(1);
+}
+
+function formatRankAndPoints(row: ScenarioRow, eid: string, rank: number | undefined): string {
+  const pts = formatScore(row.scores[eid]);
+  if (rank === undefined) return "—";
+  return `${rank} (Pts ${pts})`;
 }
