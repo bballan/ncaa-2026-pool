@@ -1,0 +1,38 @@
+# Copy to config.yaml and adjust paths.
+
+# Optional: use 2019-style CSVs instead of Excel (set both; picks_path ignored)
+# picks_csv_path: 2019/picks2019worldsbest.csv
+# master_csv_path: 2019/masterbracket8teams.csv
+
+# Optional: Excel picks + Master/Points/Seed in CSV (picks sheet has no Master rows)
+# master_csv_path: master_elite8_from_pool.csv
+
+picks_path: bracket_picks.xlsx
+sheet_picks: Picks
+# Omit or set null to auto-detect Master/Points/Seed rows on the picks sheet
+sheet_master: Master
+
+bracket_name_column: Bracket Name
+master_label_column: Bracket Name
+master_row_master: Master
+master_row_points: Points
+master_row_seed: Seed
+
+# elite8: 7 unknowns (FF → championship), EE fixed in Master
+# final4: 3 unknowns (semis + championship), FF fixed in Master
+# s16_elite8: 15 unknowns (Sweet 16 → championship), Round of 32 fixed in Master
+stage: elite8
+
+# Output directory (created if missing)
+output_dir: output/2026
+output_prefix: run
+
+# Optional: export column name -> canonical slot id (R32-1 … Champ)
+column_map: {}
+
+# Finishing ranks to report in critical_path (ties use .5 ranks from pandas)
+podium: null  # null = unique ranks 1 .. n_entries (floats allowed)
+
+# Validate that Master has this many unknown slots (-1) for the chosen stage
+# null = skip check
+expected_unknown_slots: null

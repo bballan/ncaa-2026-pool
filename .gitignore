@@ -1,0 +1,14 @@
+.venv/
+venv/
+**/__pycache__/
+*.py[cod]
+.pytest_cache/
+.DS_Store
+*.egg-info/
+
+# Scenario viewer (build + deps)
+scenario-viewer/node_modules/
+scenario-viewer/dist/
+
+# Raw scenario CSVs are huge; commit scenario-viewer/public/data/scenarios.csv.gz instead (see README).
+output/**/*.csv

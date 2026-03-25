@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NCAA Tournament Pool Analysis - Day 2</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 30px 16px;
+        }
+        h1 {
+            color: #1a472a;
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 8px;
+            border-bottom: 3px solid #c41e3a;
+            padding-bottom: 12px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+        h2 {
+            color: #c41e3a;
+            font-size: 19px;
+            margin-top: 28px;
+            margin-bottom: 12px;
+            border-left: 4px solid #c41e3a;
+            padding-left: 10px;
+        }
+        h3 {
+            color: #1a472a;
+            font-size: 15px;
+            margin-top: 18px;
+            margin-bottom: 8px;
+        }
+        p, li {
+            font-size: 14px;
+        }
+        .upset-box {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 12px;
+            margin: 12px 0;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .stat-highlight {
+            background-color: #e8f4f8;
+            border-left: 4px solid #0066cc;
+            padding: 12px;
+            margin: 12px 0;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .mover-up {
+            background-color: #e8f5e9;
+            border-left: 4px solid #28a745;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .mover-down {
+            background-color: #fce4ec;
+            border-left: 4px solid #dc3545;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .game-split {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .game-split strong {
+            color: #c41e3a;
+        }
+        .storyline {
+            background-color: #fff8e1;
+            border-left: 4px solid #ff9800;
+            padding: 12px;
+            margin: 12px 0;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .contrarian {
+            background-color: #f3e5f5;
+            border-left: 4px solid #7c4dff;
+            padding: 12px;
+            margin: 12px 0;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .contrarian strong {
+            color: #4527a0;
+        }
+        .footer {
+            text-align: center;
+            color: #999;
+            font-size: 12px;
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid #ddd;
+        }
+        ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        li {
+            margin: 6px 0;
+        }
+        .tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+        .tag-upset { background-color: #ffc107; color: #333; }
+        .tag-chalk { background-color: #28a745; color: white; }
+        .tag-swing { background-color: #c41e3a; color: white; }
+
+        /* ---- Card-style layouts (mobile-friendly) ---- */
+        .result-card {
+            background-color: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 10px 12px;
+            margin: 8px 0;
+            font-size: 14px;
+        }
+        .result-card .winner {
+            font-weight: bold;
+            color: #1a472a;
+        }
+        .result-card .wrong {
+            color: #c41e3a;
+            font-weight: bold;
+        }
+
+        .leader-card {
+            background: linear-gradient(to right, #f0f8f0, #ffffff);
+            border: 1px solid #c8e6c9;
+            border-radius: 6px;
+            padding: 10px 12px;
+            margin: 8px 0;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .leader-rank {
+            background-color: #1a472a;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .leader-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .leader-name {
+            font-weight: bold;
+            color: #1a472a;
+            font-size: 14px;
+        }
+        .leader-stats {
+            color: #666;
+            font-size: 12px;
+            margin-top: 2px;
+        }
+        .leader-champ {
+            background-color: #e8f4f8;
+            color: #0066cc;
+            font-size: 11px;
+            font-weight: bold;
+            padding: 2px 8px;
+            border-radius: 10px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏀 NCAA Tournament Pool Analysis</h1>
+        <p class="subtitle">Day 2 Recap & Saturday's Second Round Preview</p>
+
+        <!-- ============================================ -->
+        <!-- SECTION 1: WHAT HAPPENED FRIDAY -->
+        <!-- ============================================ -->
+
+        <h2>What Happened Friday</h2>
+        <p>The favorites held serve. Unlike Thursday's chaos, Friday produced <strong>zero true upsets</strong>. Every higher-seeded team advanced. The biggest "surprises" were coin-flip 7/10 and 8/9 games breaking for the slight underdogs:</p>
+
+        <div class="result-card">
+            <span class="winner">#9 Utah St. def #8 Villanova</span> — West 8v9<br>
+            <span class="wrong">66 wrong (50%)</span> — The closest split in the pool
+        </div>
+        <div class="result-card">
+            <span class="winner">#7 Kentucky def #10 Santa Clara (OT)</span> — Midwest 7v10<br>
+            <span class="wrong">63 wrong (47%)</span>
+        </div>
+        <div class="result-card">
+            <span class="winner">#7 Miami def #10 Missouri</span> — West 7v10<br>
+            <span class="wrong">57 wrong (43%)</span>
+        </div>
+        <div class="result-card">
+            <span class="winner">#7 UCLA def #10 UCF</span> — East 7v10<br>
+            <span class="wrong">55 wrong (41%)</span>
+        </div>
+        <div class="result-card">
+            <span class="winner">#9 Iowa def #8 Clemson</span> — South 8v9<br>
+            <span class="wrong">49 wrong (37%)</span>
+        </div>
+        <div class="result-card">
+            <span class="winner">#5 Texas Tech def #12 Akron</span> — Midwest 5v12<br>
+            <span class="wrong">49 wrong (37%)</span>
+        </div>
+
+        <div class="stat-highlight">
+            <strong>Key takeaway:</strong> Friday's chalk results heavily rewarded brackets that played it safe across the board. The people who picked the most favorites surged in the standings, while Thursday's contrarian heroes saw their edge shrink.
+        </div>
+
+        <!-- ============================================ -->
+        <!-- SECTION 2: STANDINGS SHAKEUP -->
+        <!-- ============================================ -->
+
+        <h2>The Standings Were Reshuffled</h2>
+        <p>Friday's results dramatically changed the leaderboard. Here's who's on top after all 32 first-round games:</p>
+
+        <div class="leader-card">
+            <div class="leader-rank">1</div>
+            <div class="leader-info">
+                <div class="leader-name">steve odabashian</div>
+                <div class="leader-stats">198 pts | Max: 584</div>
+            </div>
+            <div class="leader-champ">Houston</div>
+        </div>
+        <div class="leader-card">
+            <div class="leader-rank">2</div>
+            <div class="leader-info">
+                <div class="leader-name">Nisha Malani</div>
+                <div class="leader-stats">196 pts | Max: 587</div>
+            </div>
+            <div class="leader-champ">Michigan</div>
+        </div>
+        <div class="leader-card">
+            <div class="leader-rank">3</div>
+            <div class="leader-info">
+                <div class="leader-name">mike laning</div>
+                <div class="leader-stats">195 pts | Max: 597</div>
+            </div>
+            <div class="leader-champ">Arizona</div>
+        </div>
+        <div class="leader-card">
+            <div class="leader-rank">3</div>
+            <div class="leader-info">
+                <div class="leader-name">mike laning (2)</div>
+                <div class="leader-stats">195 pts | Max: 596</div>
+            </div>
+            <div class="leader-champ">Arizona</div>
+        </div>
+        <div class="leader-card">
+            <div class="leader-rank">5</div>
+            <div class="leader-info">
+                <div class="leader-name">Jason Feirman</div>
+                <div class="leader-stats">191 pts | Max: 599</div>
+            </div>
+            <div class="leader-champ">Iowa St.</div>
+        </div>
+        <div class="leader-card">
+            <div class="leader-rank">6</div>
+            <div class="leader-info">
+                <div class="leader-name">Michael Stein</div>
+                <div class="leader-stats">187 pts | Max: 578</div>
+            </div>
+            <div class="leader-champ">Houston</div>
+        </div>
+        <div class="leader-card">
+            <div class="leader-rank">7</div>
+            <div class="leader-info">
+                <div class="leader-name">Michael Shapiro</div>
+                <div class="leader-stats">185 pts | Max: 573</div>
+            </div>
+            <div class="leader-champ">Arizona</div>
+        </div>
+        <div class="leader-card">
+            <div class="leader-rank">7</div>
+            <div class="leader-info">
+                <div class="leader-name">Larry Manis</div>
+                <div class="leader-stats">185 pts | Max: 565</div>
+            </div>
+            <div class="leader-champ">Michigan</div>
+        </div>
+        <div class="leader-card">
+            <div class="leader-rank">9</div>
+            <div class="leader-info">
+                <div class="leader-name">Jarod Were</div>
+                <div class="leader-stats">180 pts | Max: 588</div>
+            </div>
+            <div class="leader-champ">Houston</div>
+        </div>
+        <div class="leader-card">
+            <div class="leader-rank">10</div>
+            <div class="leader-info">
+                <div class="leader-name">Kavin Peechaphand</div>
+                <div class="leader-stats">179 pts | Max: 560</div>
+            </div>
+            <div class="leader-champ">Arizona</div>
+        </div>
+
+        <p><strong>Every top-10 bracket has all their deep picks still alive.</strong> No one at the top lost a Final Four or Championship team. The separation will come in the second round and beyond.</p>
+
+        <!-- ============================================ -->
+        <!-- SECTION 3: BIGGEST MOVERS -->
+        <!-- ============================================ -->
+
+        <h2>Biggest Movers from Day 1 to Day 2</h2>
+
+        <h3>Rockets (biggest risers)</h3>
+
+        <div class="mover-up">
+            <strong>steve odabashian: #3 &rarr; #1 (198 pts)</strong><br>
+            Nailed 29 of 32 first-round games and vaulted to the top with a Houston championship pick. All deep picks alive.
+        </div>
+
+        <div class="mover-up">
+            <strong>David Lee: #105 &rarr; #53 (+52 spots)</strong><br>
+            The biggest mover in the pool. Crushed Friday to vault from the bottom quarter into the middle of the pack.
+        </div>
+
+        <div class="mover-up">
+            <strong>Jon Boswell: #86 &rarr; #35 (+51 spots)</strong><br>
+            Surged from the bottom third into Sweet 16 contention. His Arizona championship pick keeps him dangerous.
+        </div>
+
+        <h3>Craters (biggest fallers)</h3>
+
+        <div class="mover-down">
+            <strong>Aaron Burakoff: #34 &rarr; #120 (-86 spots)</strong><br>
+            The biggest fall in the pool. Friday's chalk results were devastating.
+        </div>
+
+        <div class="mover-down">
+            <strong>Patrick McDarrah: #30 &rarr; #115 (-85 spots)</strong><br>
+            Dropped from the top 30 to near the bottom. Multiple wrong Friday picks compounded Thursday's damage.
+        </div>
+
+        <div class="mover-down">
+            <strong>Adam Rosenstock: #7 &rarr; #61 (-54 spots)</strong><br>
+            Was a top-10 bracket after Day 1 but collapsed on Friday. Went from serious contender to long shot.
+        </div>
+
+        <div class="stat-highlight">
+            <strong>Day 1 leader Tom Lundstedt dropped from #1 to #14.</strong> He got 26 of 32 first-round games right (177 pts), but steve odabashian's 29/32 performance (198 pts) claimed the top spot. Lundstedt's Duke &rarr; Arizona championship path is still alive, but he's now 21 points back.
+        </div>
+
+        <!-- ============================================ -->
+        <!-- SECTION 4: SATURDAY'S GAMES -->
+        <!-- ============================================ -->
+
+        <h2>Saturday's Second Round — What to Watch For</h2>
+        <p>Eight games today will cut the field from 32 to 24. Here's what matters most for the pool:</p>
+
+        <h3><span class="tag tag-swing">POOL SWINGER</span> Michigan St. vs Louisville — 2:45 PM CBS</h3>
+        <div class="game-split">
+            <strong>Michigan St. (90 picks) vs Louisville (28 picks)</strong><br>
+            <em>Line: Michigan St. favored</em><br>
+            <strong>Pool impact:</strong> 7 of the top 10 brackets have Michigan St. advancing. Only 3 (Jason Feirman, Larry Manis, Jarod Were) picked Louisville. A Louisville win would be a major swing for those three contrarians.<br>
+            <strong>Future stakes: 4,360 pool points</strong> riding on Michigan St. across deeper rounds. Justin Bias (#13) has them winning the whole tournament.
+        </div>
+
+        <div class="storyline">
+            <strong>The storyline:</strong> Michigan State's Jeremy Fears Jr. leads the nation in assists at 9.2 per game, and his 11-assist performance against North Dakota State tied for second-most in MSU tournament history. Louisville's Ryan Conwell is a pure scorer that Fears himself respects from their Big Ten/Big East days. The Spartans' dominant offensive rebounding could exploit Louisville's defensive lapses (South Florida grabbed 18 offensive boards against the Cardinals).
+        </div>
+
+        <h3><span class="tag tag-swing">POOL SWINGER</span> Duke vs TCU — 5:15 PM CBS</h3>
+        <div class="game-split">
+            <strong>Duke (129 picks) vs TCU (3 picks)</strong><br>
+            <em>Line: Duke -10.5</em><br>
+            <strong>Pool impact:</strong> Every single top-10 bracket has Duke. A TCU upset would be catastrophic for the pool — <strong>22,600 future pool points</strong> wiped out. Only 3 people in the entire pool picked TCU to advance here.
+        </div>
+
+        <div class="storyline">
+            <strong>The storyline:</strong> Duke is wounded. Starting PG Caleb Foster and center Patrick Ngongba are both sidelined with foot injuries, and Ngongba's status for Saturday is murky at best. TCU shot 39% from deep against Ohio State, and if they shoot like that again, they could exploit Duke's depleted backcourt. Cam Boozer will need to carry a heavier load. This is the upset watch of the day.
+        </div>
+
+        <h3><span class="tag tag-swing">POOL SWINGER</span> Gonzaga vs Texas — 7:10 PM TBS</h3>
+        <div class="game-split">
+            <strong>Gonzaga (85 picks) vs Texas (16 picks)</strong><br>
+            <em>Line: Gonzaga -5.5</em><br>
+            <strong>Pool impact:</strong> 7 of the top 10 have Gonzaga; 2 have Texas (both mike laning brackets at #3). A Texas upset would give mike laning a huge edge over the rest of the top 10.<br>
+            <strong>Future stakes: 5,600 pool points</strong> riding on Gonzaga across deeper rounds. 32 brackets already have dead picks here (they picked BYU or Kennesaw St.).
+        </div>
+
+        <div class="storyline">
+            <strong>The storyline:</strong> Texas has been the tournament's best story so far — they needed a last-second First Four win over NC State, then dismantled BYU. Their 7-footer Matas Vokietaitis has elevated his game, while Dailyn Swain and Tramon Mark match up well athletically with Gonzaga's guards. But Gonzaga's top-10 defense (per KenPom) is a massive step up from anything Texas has faced.
+        </div>
+
+        <h3><span class="tag tag-swing">CLOSEST GAME</span> Nebraska vs Vanderbilt — 8:45 PM TNT</h3>
+        <div class="game-split">
+            <strong>Vanderbilt (84 picks) vs Nebraska (42 picks)</strong><br>
+            <em>Line: Vanderbilt -2.5 (tightest spread of the day)</em><br>
+            <strong>Pool impact:</strong> The top 10 is split <strong>dead even 5-5</strong>. Current leader steve odabashian has Vanderbilt; #2 Nisha Malani has Nebraska. This is the game most likely to decide who among the current leaders gains or loses ground.<br>
+            <strong>Future stakes:</strong> Nearly equal — 680 points on Vanderbilt, 720 on Nebraska. A true coin flip for the pool.
+        </div>
+
+        <div class="storyline">
+            <strong>The storyline:</strong> Nebraska earned its first-ever NCAA Tournament win in program history on Thursday, with Pryce Sandfort setting a program record with 7 threes. This is a schematic chess match between Fred Hoiberg (Nebraska) and Mark Byington (Vanderbilt). The Cornhuskers were scorching from three (14-of-39), and if they shoot like that again, the Commodores are in trouble.
+        </div>
+
+        <h3>Houston vs Texas A&M — 6:10 PM TNT</h3>
+        <div class="game-split">
+            <strong>Houston (122 picks) vs Texas A&M (5 picks)</strong><br>
+            <em>Line: Houston -9.5</em><br>
+            <strong>Pool impact:</strong> All 10 of the top-10 brackets have Houston. <strong>18,120 future pool points</strong> on Houston. An A&M upset would be one of the most impactful results of the entire tournament for this pool. But experts aren't giving A&M much of a shot.
+        </div>
+
+        <h3>Illinois vs VCU — 7:50 PM CBS</h3>
+        <div class="game-split">
+            <strong>Illinois (90 picks) vs VCU (13 picks)</strong><br>
+            <em>Line: Illinois -10.5</em><br>
+            <strong>Pool impact:</strong> 6 of the top 10 have Illinois. Four — including both mike laning brackets (#3), Michael Shapiro (#7), and Jarod Were (#9) — have the VCU Cinderella continuing. A VCU win here would be a serious boost for those four.
+        </div>
+
+        <div class="storyline">
+            <strong>The storyline:</strong> VCU completed the largest first-round comeback in NCAA tournament history, overcoming a 19-point second-half deficit to stun North Carolina in overtime. Can the Rams ride that magic against an Illinois team that blew out Penn by 35, led by David Mirkovic's 29 points and 17 rebounds?
+        </div>
+
+        <h3>Arkansas vs High Point — 9:45 PM TBS</h3>
+        <div class="game-split">
+            <strong>Arkansas (81 picks) vs High Point (4 picks)</strong><br>
+            <em>Line: Arkansas -11.5 (biggest spread of the day)</em><br>
+            <strong>Pool impact:</strong> 6 of the top 10 have Arkansas. Current leader steve odabashian has a dead pick here (he picked Wisconsin), so this game can't help him. 48 brackets total already have dead picks in this slot. Only 4 people in the entire pool have High Point's Cinderella run continuing.
+        </div>
+
+        <div class="storyline">
+            <strong>The storyline:</strong> High Point's first-ever March Madness win came via 21 points in the final 5 minutes against Wisconsin, including a go-ahead layup from Chase Johnston (who averaged just 6.1 PPG). They enter with the nation's longest winning streak at 14 games. But Arkansas rolled Hawaii 97-78 behind freshman Darius Acuff Jr.'s 24 points and 7 assists — setting the school's single-season assist record with 223.
+        </div>
+
+        <h3>Michigan vs Saint Louis — 12:10 PM CBS</h3>
+        <div class="game-split">
+            <strong>Michigan (124 picks) vs Saint Louis (2 picks)</strong><br>
+            <em>Line: Michigan heavily favored</em><br>
+            <strong>Pool impact:</strong> 9 of the top 10 have Michigan advancing (only steve odabashian has a dead pick here). <strong>31,440 future pool points</strong> on Michigan — the single highest-stakes game of the day. 28 people have Michigan winning the national championship, including #2 Nisha Malani and #7 Larry Manis. But Saint Louis just dropped 102 on Georgia, so they're no pushover.
+        </div>
+
+        <!-- ============================================ -->
+        <!-- SECTION 5: THE BIG PICTURE -->
+        <!-- ============================================ -->
+
+        <h2>The Big Picture</h2>
+
+        <div class="stat-highlight">
+            <strong>The pool is wide open.</strong> Only 30 points separate 1st and 25th place (198 vs 168). Second-round games are worth more points than the first round — one good day today can vault you from the middle of the pack into the lead.
+        </div>
+
+        <h3>Championship picks still alive (all 16 teams remaining):</h3>
+        <ul>
+            <li><strong>Arizona (33 brackets)</strong> — The consensus favorite, still dominant</li>
+            <li><strong>Michigan (28)</strong> — Faces Saint Louis today</li>
+            <li><strong>Duke (17)</strong> — Faces TCU today, but short-handed</li>
+            <li><strong>Houston (15)</strong> — Faces Texas A&M today</li>
+            <li><strong>Florida (14)</strong> — Plays Sunday</li>
+            <li><strong>UConn (6), Gonzaga (5), Iowa St. (3), Arkansas (2), St. John's (2), Kansas (2), Michigan St. (2)</strong></li>
+            <li>Purdue (1), Illinois (1) — Also alive</li>
+        </ul>
+
+        <p>No one's championship pick has been eliminated yet. That changes today. Every game matters.</p>
+
+        <div class="footer">
+            <p>NCAA Tournament Pool Analysis | March 21, 2026<br>
+            Data compiled from bracket picks and official tournament results</p>
+        </div>
+    </div>
+</body>
+</html>
