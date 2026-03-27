@@ -62,6 +62,7 @@ function placeOrdinal(p: 1 | 2 | 3 | 4) {
 
 export function GameFilterBar() {
   const clearGameFilters = useScenarioStore((s) => s.clearGameFilters);
+  const completedGameDefaults = useScenarioStore((s) => s.completedGameDefaults);
   const placeOutcomeFilter = useScenarioStore((s) => s.placeOutcomeFilter);
   const setPlaceOutcomeFilter = useScenarioStore((s) => s.setPlaceOutcomeFilter);
   const dataset = useScenarioStore((s) => s.dataset);
@@ -73,6 +74,7 @@ export function GameFilterBar() {
   if (!dataset) return null;
 
   const gamesActive = gameFiltersActive(gameFilters);
+  const hasCompletedDefaults = Object.keys(completedGameDefaults).length > 0;
   const narrowedBrackets =
     selectedEntryIds.length > 0 && selectedEntryIds.length < dataset.entryIds.length;
   const topFourNote =
@@ -86,6 +88,13 @@ export function GameFilterBar() {
         <h2>Scenario filters</h2>
         <p className="muted">
           Hold <kbd>⌘</kbd>/<kbd>Ctrl</kbd> to pick multiple winners per game. Empty = no filter.
+          {hasCompletedDefaults && (
+            <>
+              {" "}
+              Known finished games load with winners pre-selected (from pool metadata); clear or change as
+              needed.
+            </>
+          )}
         </p>
         <div className="filter-meta">
           <span>

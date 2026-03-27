@@ -15,6 +15,8 @@ type State = {
   entryRankCache: EntryRankCache | null;
   loadStatus: "idle" | "loading" | "ready" | "error";
   loadError: string | null;
+  /** From `meta.json`: winners to pre-select for slots with no URL override */
+  completedGameDefaults: Partial<Record<GameSlot, string>>;
   /** Entry (bracket) columns to show in the grid */
   selectedEntryIds: string[];
   /** Subset of teams per slot; row passes if each active filter includes that cell's team */
@@ -28,6 +30,7 @@ type State = {
   placeOutcomeFilter: PlaceOutcomeFilter | null;
 
   setDataset: (d: ScenarioDataset) => void;
+  setCompletedGameDefaults: (d: Partial<Record<GameSlot, string>>) => void;
   setLoadStatus: (s: State["loadStatus"], err?: string | null) => void;
   setSelectedEntryIds: (ids: string[]) => void;
   toggleEntryId: (id: string) => void;
@@ -48,6 +51,7 @@ export const useScenarioStore = create<State>((set, get) => ({
   entryRankCache: null,
   loadStatus: "idle",
   loadError: null,
+  completedGameDefaults: {},
   selectedEntryIds: [],
   gameFilters: {},
   searchBracket: "",
@@ -65,6 +69,8 @@ export const useScenarioStore = create<State>((set, get) => ({
       loadStatus: "ready",
       loadError: null,
     }),
+
+  setCompletedGameDefaults: (completedGameDefaults) => set({ completedGameDefaults }),
 
   setLoadStatus: (s, err = null) => set({ loadStatus: s, loadError: err }),
 

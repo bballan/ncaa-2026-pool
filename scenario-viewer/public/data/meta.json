@@ -3,5 +3,12 @@
   "bytes_csv": 53811354,
   "bytes_gzip": 6025960,
   "critical_path_csv": "run_critical_path_s16_elite8.csv",
-  "critical_path_bytes_gzip": 53346
+  "critical_path_bytes_gzip": 53346,
+  "defaultGameOutcomes": {
+    "EE3": "1 Arizona",
+    "EE4": "2 Purdue",
+    "EE5": "9 Iowa",
+    "EE6": "3 Illinois"
+  },
+  "defaultGameOutcomesNote": "2026-03-26 Sweet 16 — Arizona/Arkansas, Purdue/Texas, Iowa/Nebraska, Illinois/Houston"
 }

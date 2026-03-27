@@ -9,6 +9,7 @@ import { MustWinPanel } from "./components/MustWinPanel";
 import { useScenarioUrlSync } from "./hooks/useScenarioUrlSync";
 import { loadCriticalPathRows } from "./lib/loadCriticalPath";
 import { loadScenarioDataset } from "./lib/loadData";
+import { defaultGameOutcomesFromMeta, loadViewerMeta } from "./lib/viewerMeta";
 import {
   applyScenarioUrlQuery,
   beginScenarioUrlHydration,
@@ -23,6 +24,7 @@ type MainTab = "scenarios" | "mustwin";
 export default function App() {
   const [mainTab, setMainTab] = useState<MainTab>("scenarios");
   const setDataset = useScenarioStore((s) => s.setDataset);
+  const setCompletedGameDefaults = useScenarioStore((s) => s.setCompletedGameDefaults);
   const setLoadStatus = useScenarioStore((s) => s.setLoadStatus);
   const loadStatus = useScenarioStore((s) => s.loadStatus);
   const loadError = useScenarioStore((s) => s.loadError);
@@ -42,12 +44,14 @@ export default function App() {
 
     (async () => {
       try {
-        const [scenarios, criticalRows] = await Promise.all([
+        const [scenarios, meta, criticalRows] = await Promise.all([
           loadScenarioDataset(window.location.search),
+          loadViewerMeta(window.location.search),
           criticalPromise,
         ]);
         if (cancelled) return;
         useCriticalPathStore.getState().setRows(criticalRows);
+        setCompletedGameDefaults(defaultGameOutcomesFromMeta(meta));
         beginScenarioUrlHydration();
         try {
           setDataset(scenarios);

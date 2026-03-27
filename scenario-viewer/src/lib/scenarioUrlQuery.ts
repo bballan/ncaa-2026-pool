@@ -47,6 +47,15 @@ export function applyScenarioUrlQuery(params: URLSearchParams, dataset: Scenario
       if (teams.length > 0) gameFilters[slot] = new Set(teams);
     }
 
+    const completedDefaults = useScenarioStore.getState().completedGameDefaults;
+    for (const slot of GAME_SLOTS) {
+      if (gameFilters[slot]) continue;
+      const team = completedDefaults[slot];
+      if (!team) continue;
+      const allowed = teamsForSlot(dataset, slot);
+      if (allowed.has(team)) gameFilters[slot] = new Set([team]);
+    }
+
     let focusedScenarioId: number | null = null;
     const focusRaw = params.get("focus");
     if (focusRaw !== null && focusRaw !== "") {
